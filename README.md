@@ -34,3 +34,24 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+# Notes
+1. Done -> Add metrics WALK-IN against MEMBER SALES
+2. Add metrics by sales location performance, by month 
+3. Top product by location
+4. Segment customers by location who needs more attention who less visit the branch or outlet  (segment customers by frequency of going to salon)
+5. Under sales by location card, show which product or service on how much is the equivalent for the total sales by location
+
+# Customer Segment by Location 2025
+Try to segment my customer base on location who have visited at least once in the past 6 months after they signed up for the year 2025, Where signup field is from tblmembers.dtMember_JoinedDate
+
+# Birthday month february 2026
+show me birthday month for february and are active and last sale more than 6 months ago
+show me birthday month for february and are active and last sale less than 2 months ago
+
+
+# SSH 
+ssh nk@nkftp.dyndns.org -i /users/mike/downloads/nk.pem
+sudo su
+Nk67481095Ns
