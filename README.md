@@ -55,3 +55,5 @@ show me birthday month for february and are active and last sale less than 2 mon
 ssh nk@nkftp.dyndns.org -i /users/mike/downloads/nk.pem
 sudo su
 Nk67481095Ns
+
+
