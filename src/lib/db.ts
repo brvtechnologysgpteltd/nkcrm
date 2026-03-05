@@ -36,7 +36,7 @@ export async function query<T>(
   const pool = await getPool();
   const request = pool.request();
   if (options?.timeoutMs) {
-    request.timeout = options.timeoutMs;
+    (request as sql.Request).timeout = options.timeoutMs;
   }
   for (const param of params) {
     request.input(param.name, param.type, param.value);
