@@ -42,6 +42,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 3. Top product by location
 4. Segment customers by location who needs more attention who less visit the branch or outlet  (segment customers by frequency of going to salon)
 5. Under sales by location card, show which product or service on how much is the equivalent for the total sales by location
+6. Try to add also the peak period in every branch report
 
 # Customer Segment by Location 2025
 Try to segment my customer base on location who have visited at least once in the past 6 months after they signed up for the year 2025, Where signup field is from tblmembers.dtMember_JoinedDate
@@ -56,4 +57,6 @@ ssh nk@nkftp.dyndns.org -i /users/mike/downloads/nk.pem
 sudo su
 Nk67481095Ns
 
+
+git pull && docker compose down && docker rmi -f $(docker images | grep nkcrm-crm | awk '{print $3}')  && docker compose up -d --force-recreate
 

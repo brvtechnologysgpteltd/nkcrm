@@ -76,6 +76,21 @@ type LocationMonthRow = {
   total: number;
 };
 
+type LocationPeakDayRow = {
+  locationCode: string;
+  locationName: string | null;
+  weekdayName: string;
+  total: number;
+};
+
+type LocationPeakTopDayRow = {
+  locationCode: string;
+  locationName: string | null;
+  weekdayName: string;
+  total: number;
+  rank: number;
+};
+
 type LocationTopRow = {
   locationCode: string;
   locationName: string | null;
@@ -201,6 +216,63 @@ export default async function DashboardPage() {
       AND ISNULL(e.void, 0) = 0
     GROUP BY e.clocationcode, s.clocationname, YEAR(m.ddate), MONTH(m.ddate)
     ORDER BY e.clocationcode, YEAR(m.ddate), MONTH(m.ddate)
+    `
+  );
+
+  const peakDayByLocation = await query<LocationPeakDayRow>(
+    `
+    WITH month_base AS (
+      SELECT CONVERT(date, DATEADD(day, 1 - DAY(GETDATE()), GETDATE())) AS month_start
+    ),
+    location_days AS (
+      SELECT
+        m.clocationcode AS locationCode,
+        s.clocationname AS locationName,
+        DATENAME(WEEKDAY, m.ddate) AS weekdayName,
+        SUM(m.ngtotal) AS total,
+        ROW_NUMBER() OVER (
+          PARTITION BY m.clocationcode
+          ORDER BY SUM(m.ngtotal) DESC
+        ) AS rank
+      FROM Pos.tblSalesMain m
+      LEFT JOIN Pos.tblSettings s ON s.clocationcode = m.clocationcode
+      CROSS JOIN month_base mb
+      WHERE m.ddate >= DATEADD(month, -2, mb.month_start)
+        AND m.ddate < DATEADD(month, 1, mb.month_start)
+      GROUP BY m.clocationcode, s.clocationname, DATENAME(WEEKDAY, m.ddate)
+    )
+    SELECT locationCode, locationName, weekdayName, total
+    FROM location_days
+    WHERE rank = 1
+    ORDER BY total DESC, locationName, locationCode
+    `
+  );
+
+  const topDaysByLocation = await query<LocationPeakTopDayRow>(
+    `
+    WITH month_base AS (
+      SELECT CONVERT(date, DATEADD(day, 1 - DAY(GETDATE()), GETDATE())) AS month_start
+    ),
+    location_days AS (
+      SELECT
+        m.clocationcode AS locationCode,
+        s.clocationname AS locationName,
+        DATENAME(WEEKDAY, m.ddate) AS weekdayName,
+        SUM(m.ngtotal) AS total,
+        ROW_NUMBER() OVER (
+          PARTITION BY m.clocationcode
+          ORDER BY SUM(m.ngtotal) DESC
+        ) AS rank
+      FROM Pos.tblSalesMain m
+      LEFT JOIN Pos.tblSettings s ON s.clocationcode = m.clocationcode
+      CROSS JOIN month_base mb
+      WHERE m.ddate >= DATEADD(month, -2, mb.month_start)
+        AND m.ddate < DATEADD(month, 1, mb.month_start)
+      GROUP BY m.clocationcode, s.clocationname, DATENAME(WEEKDAY, m.ddate)
+    )
+    SELECT locationCode, locationName, weekdayName, total, rank
+    FROM location_days
+    ORDER BY locationName, locationCode, rank
     `
   );
 
@@ -513,7 +585,7 @@ export default async function DashboardPage() {
         ))}
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-2">
+      <section>
         <Card className="rounded-3xl border-[var(--color-line)] bg-[var(--color-card)] shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-xl">Top service by month (S$)</CardTitle>
@@ -723,6 +795,100 @@ export default async function DashboardPage() {
                     </span>
                   </div>
                 ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="grid gap-12">
+        <Card className="rounded-3xl border-[var(--color-line)] bg-[var(--color-card)] shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl">
+              Peak period by location (last 3 months)
+            </CardTitle>
+            <CardDescription>
+              All weekdays ranked by sales per location in the last 3 months.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {topDaysByLocation.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-[var(--color-line)] px-4 py-10 text-center text-sm text-muted-foreground">
+                No peak day data available.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="text-xs uppercase tracking-[0.2em] text-black/40">
+                  Summary
+                </div>
+                <div className="text-2xl font-semibold">
+                  Location peak days
+                </div>
+                <p className="text-sm text-black/60">
+                  Sorted by highest location weekday totals.
+                </p>
+                <div className="mt-4 space-y-4 text-sm">
+                  {(() => {
+                    const totalsByLocation = new Map<string, number>();
+                    const labelsByLocation = new Map<string, string>();
+                    topDaysByLocation.forEach((row) => {
+                      totalsByLocation.set(
+                        row.locationCode,
+                        (totalsByLocation.get(row.locationCode) ?? 0) +
+                          row.total
+                      );
+                      labelsByLocation.set(
+                        row.locationCode,
+                        row.locationName || row.locationCode
+                      );
+                    });
+                    const orderedLocations = [...totalsByLocation.entries()].sort(
+                      (a, b) => b[1] - a[1]
+                    );
+                    const locations = orderedLocations.map(([locationCode]) => ({
+                      locationCode,
+                      label: labelsByLocation.get(locationCode) || locationCode,
+                    }));
+
+                    return (
+                      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                        {locations.map((location) => {
+                          const rows = topDaysByLocation.filter(
+                            (row) => row.locationCode === location.locationCode
+                          );
+                          return (
+                            <div
+                              key={`peak-${location.locationCode}`}
+                              className="rounded-2xl border border-[var(--color-line)] bg-white/60 px-4 py-3"
+                            >
+                              <div className="flex items-center justify-between">
+                                <p className="font-semibold">{location.label}</p>
+                                <span className="text-xs uppercase tracking-[0.2em] text-black/40">
+                                  All days
+                                </span>
+                              </div>
+                              <div className="mt-2 grid gap-2">
+                                {rows.map((row) => (
+                                  <div
+                                    key={`${location.locationCode}-${row.rank}`}
+                                    className="flex items-center justify-between"
+                                  >
+                                    <span className="text-black/70">
+                                      #{row.rank} {row.weekdayName}
+                                    </span>
+                                    <span className="text-black/60">
+                                      {currency.format(row.total)}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             )}
@@ -1087,6 +1253,10 @@ export default async function DashboardPage() {
                     {(() => {
                       const totals = new Map<string, number>();
                       const labels = new Map<string, string>();
+                      const peaks = new Map<
+                        string,
+                        { weekdayName: string; total: number }
+                      >();
                       monthlyLocationPerformance.forEach((row) => {
                         totals.set(
                           row.locationCode,
@@ -1097,6 +1267,12 @@ export default async function DashboardPage() {
                           row.locationName || row.locationCode
                         );
                       });
+                      peakDayByLocation.forEach((row) => {
+                        peaks.set(row.locationCode, {
+                          weekdayName: row.weekdayName,
+                          total: row.total,
+                        });
+                      });
                       const ordered = [...totals.entries()].sort(
                         (a, b) => b[1] - a[1]
                       );
@@ -1105,9 +1281,15 @@ export default async function DashboardPage() {
                           key={`${locationCode}-summary`}
                           className="flex items-center justify-between"
                         >
-                          <span className="text-black/70">
-                            {labels.get(locationCode)}
-                          </span>
+                          <div>
+                            <span className="text-black/70">
+                              {labels.get(locationCode)}
+                            </span>
+                            <div className="text-xs uppercase tracking-[0.2em] text-black/40">
+                              Peak day (last 3 months):{" "}
+                              {peaks.get(locationCode)?.weekdayName || "—"}
+                            </div>
+                          </div>
                           <span className="text-right text-sm text-black/60">
                             {currency.format(total)}
                           </span>
