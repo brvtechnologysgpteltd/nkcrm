@@ -24,7 +24,7 @@ export function getPool() {
 
 export type DbParam = {
   name: string;
-  type: sql.ISqlType;
+  type: sql.ISqlType | sql.ISqlTypeFactory;
   value: unknown;
 };
 
