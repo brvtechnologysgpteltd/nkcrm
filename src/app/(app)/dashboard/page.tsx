@@ -317,7 +317,7 @@ export default async function DashboardPage() {
     `
   );
 
-  const currentTopProducts = await query<ServiceRow>(
+  const currentTopProducts: ServiceRow[] = await query<ServiceRow>(
     `
     SELECT TOP (5)
       e.cdesc,
@@ -333,7 +333,7 @@ export default async function DashboardPage() {
     `
   );
 
-  const previousTopProducts = await query<ServiceRow>(
+  const previousTopProducts: ServiceRow[] = await query<ServiceRow>(
     `
     SELECT TOP (5)
       e.cdesc,
