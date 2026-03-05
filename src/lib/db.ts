@@ -24,7 +24,7 @@ export function getPool() {
 
 export type DbParam = {
   name: string;
-  type: sql.ISqlType | sql.ISqlTypeFactory;
+  type: unknown;
   value: unknown;
 };
 
@@ -39,7 +39,7 @@ export async function query<T>(
     (request as unknown as { timeout: number }).timeout = options.timeoutMs;
   }
   for (const param of params) {
-    request.input(param.name, param.type, param.value);
+    request.input(param.name, param.type as sql.ISqlType, param.value);
   }
   const result = await request.query<T>(queryText);
   return result.recordset;
