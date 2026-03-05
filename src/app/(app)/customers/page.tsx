@@ -46,7 +46,7 @@ export default async function CustomersPage({ searchParams }: CustomersPageProps
   const resolvedSearchParams = await searchParams;
   const searchQuery = resolvedSearchParams?.q?.trim() ?? "";
 
-  const customers = await query<MemberRow>(
+  const customers: MemberRow[] = await query<MemberRow>(
     `
     SELECT TOP (50)
       vchMember_Code,
