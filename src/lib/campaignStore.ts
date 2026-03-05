@@ -195,7 +195,10 @@ export function validateSpec(spec: CampaignSpec) {
   if (spec.filters && disallowed.some((pattern) => pattern.test(spec.filters))) {
     throw new Error("Filters contain disallowed SQL keywords.");
   }
-  if (spec.orderBy && disallowed.some((pattern) => pattern.test(spec.orderBy))) {
+  if (
+    spec.orderBy &&
+    disallowed.some((pattern) => pattern.test(spec.orderBy ?? ""))
+  ) {
     throw new Error("Order clause contains disallowed SQL keywords.");
   }
 }
