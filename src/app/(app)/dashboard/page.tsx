@@ -1702,7 +1702,7 @@ export default async function DashboardPage() {
                     const y =
                       padding +
                       (1 - row.total / max) * (chartHeight - padding * 2);
-                    return { x, y, total: row.total, ...row };
+                    return { x, y, ...row };
                   });
                   const linePath = points
                       .map((point, index) =>
