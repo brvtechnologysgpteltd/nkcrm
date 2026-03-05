@@ -22,9 +22,15 @@ export function getPool() {
   return poolPromise;
 }
 
+export type DbParam = {
+  name: string;
+  type: sql.ISqlType;
+  value: unknown;
+};
+
 export async function query<T>(
   queryText: string,
-  params: sql.IParameter[] = [],
+  params: DbParam[] = [],
   options?: { timeoutMs?: number }
 ): Promise<T[]> {
   const pool = await getPool();

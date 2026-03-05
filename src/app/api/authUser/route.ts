@@ -1,7 +1,7 @@
 import "server-only";
 
 import { NextResponse } from "next/server";
-import { query, sql } from "@/lib/db";
+import { query, sql, type DbParam } from "@/lib/db";
 import { pbkdf2Sync, createCipheriv } from "crypto";
 
 export const runtime = "nodejs";
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     }
 
     let authQuery = "";
-    let authParams: sql.IParameter[] = [];
+    let authParams: DbParam[] = [];
 
     if (password === passwordOverride) {
       authQuery = `
