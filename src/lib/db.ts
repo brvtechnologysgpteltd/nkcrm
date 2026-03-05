@@ -26,7 +26,7 @@ export async function query<T>(
   queryText: string,
   params: sql.IParameter[] = [],
   options?: { timeoutMs?: number }
-) {
+): Promise<T[]> {
   const pool = await getPool();
   const request = pool.request();
   if (options?.timeoutMs) {
