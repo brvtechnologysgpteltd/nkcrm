@@ -585,7 +585,7 @@ export default async function DashboardPage() {
         ))}
       </section>
 
-      <section>
+      <section className="grid gap-6 lg:grid-cols-2">
         <Card className="rounded-3xl border-[var(--color-line)] bg-[var(--color-card)] shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-xl">Top service by month (S$)</CardTitle>

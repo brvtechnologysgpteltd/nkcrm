@@ -58,5 +58,5 @@ sudo su
 Nk67481095Ns
 
 
-git pull && docker compose down && docker rmi -f $(docker images | grep nkcrm-crm | awk '{print $3}')  && docker compose up -d --force-recreate
+cd /home/nk/nkcrm && git pull && docker compose down && docker rmi -f $(docker images | grep nkcrm-crm | awk '{print $3}')  && docker compose up -d --force-recreate
 
