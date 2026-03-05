@@ -9,4 +9,5 @@ services:
       - .env.local
     environment:
       NODE_ENV: production
+      TZ: Asia/Singapore
     restart: unless-stopped
