@@ -25,14 +25,7 @@ import {
   defaultCampaignColumns,
   getCampaignColumn,
 } from "@/lib/campaignColumns";
-
-type CampaignSpec = {
-  useSalesMain: boolean;
-  useSalesEntry: boolean;
-  filters: string;
-  orderBy?: string;
-  columns?: string[];
-};
+import type { CampaignSpec } from "@/lib/campaignStore";
 
 type CustomerRow = {
   [key: string]: string | number | null;
