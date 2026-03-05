@@ -140,10 +140,10 @@ export function buildCampaignSql(spec: CampaignSpec, limit: number | null) {
   }
   const limitClause = limit ? `TOP (${limit}) ` : "";
   const requiredSalesMain = columnDefs.some(
-    (column: { requires?: string }) => column.requires === "sm"
+    (column) => column?.requires === "sm"
   );
   const requiredSalesEntry = columnDefs.some(
-    (column: { requires?: string }) => column.requires === "se"
+    (column) => column?.requires === "se"
   );
   const useSalesMain =
     spec.useSalesMain || spec.useSalesEntry || requiredSalesMain || requiredSalesEntry;
@@ -166,7 +166,7 @@ export function buildCampaignSql(spec: CampaignSpec, limit: number | null) {
 
   return `
 SELECT ${limitClause}
-  ${columnDefs.map((column: { select: string }) => column.select).join(",\n  ")}
+  ${columnDefs.map((column) => column!.select).join(",\n  ")}
 FROM Membership.tblMembers m
 ${joins.join("\n")}
 WHERE ${whereParts.join(" AND ")}
