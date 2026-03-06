@@ -57,6 +57,9 @@ ssh nk@nkftp.dyndns.org -i /users/mike/downloads/nk.pem
 sudo su
 Nk67481095Ns
 
+# local
+git commit -am "updates" && git push
 
+# remote
 cd /home/nk/nkcrm && git pull && docker compose down && docker rmi -f $(docker images | grep nkcrm-crm | awk '{print $3}')  && docker compose up -d --force-recreate
 
