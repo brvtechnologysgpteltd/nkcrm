@@ -125,7 +125,7 @@ export default async function DashboardPage() {
       COUNT(*) AS receipts,
       CASE WHEN COUNT(*) = 0 THEN 0 ELSE SUM(ngtotal) / COUNT(*) END AS avgTicket
     FROM Pos.tblSalesMain
-    WHERE ddate = CAST(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time' AS date)
+    WHERE ddate = CAST(DATEADD(hour, 8, GETUTCDATE()) AS date)
     `
   );
 
@@ -134,13 +134,13 @@ export default async function DashboardPage() {
     SELECT
       (SELECT SUM(ngtotal)
        FROM Pos.tblSalesMain
-       WHERE ddate >= CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'))
-         AND ddate < DATEADD(month, 1, CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time')))
+       WHERE ddate >= CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE())))
+         AND ddate < DATEADD(month, 1, CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE()))))
       ) AS currentTotal,
       (SELECT SUM(ngtotal)
        FROM Pos.tblSalesMain
-       WHERE ddate >= DATEADD(month, -1, CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time')))
-         AND ddate < CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'))
+       WHERE ddate >= DATEADD(month, -1, CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE()))))
+         AND ddate < CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE())))
       ) AS previousTotal
     `
   );
@@ -152,7 +152,7 @@ export default async function DashboardPage() {
       SUM(CASE WHEN ISNULL(LTRIM(RTRIM(m.cmembercode)), '') = '' THEN e.ntotal ELSE 0 END) AS walkInSales
     FROM Pos.tblSalesEntry e
     INNER JOIN Pos.tblSalesMain m ON m.id = e.nidsalesmain
-    WHERE m.ddate = CAST(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time' AS date)
+    WHERE m.ddate = CAST(DATEADD(hour, 8, GETUTCDATE()) AS date)
       AND ISNULL(e.cancelled, 0) = 0
       AND ISNULL(e.void, 0) = 0
     `
@@ -161,7 +161,7 @@ export default async function DashboardPage() {
   const monthlyWalkInComparison = await query<WalkInMonthRow>(
     `
     WITH month_base AS (
-      SELECT CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time')) AS month_start
+      SELECT CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE()))) AS month_start
     )
     SELECT
       YEAR(m.ddate) AS year,
@@ -183,7 +183,7 @@ export default async function DashboardPage() {
   const monthlyLocationPerformance = await query<LocationMonthRow>(
     `
     WITH month_base AS (
-      SELECT CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time')) AS month_start
+      SELECT CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE()))) AS month_start
     ),
     location_totals AS (
       SELECT
@@ -222,7 +222,7 @@ export default async function DashboardPage() {
   const peakDayByLocation = await query<LocationPeakDayRow>(
     `
     WITH month_base AS (
-      SELECT CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time')) AS month_start
+      SELECT CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE()))) AS month_start
     ),
     location_days AS (
       SELECT
@@ -251,7 +251,7 @@ export default async function DashboardPage() {
   const topDaysByLocation = await query<LocationPeakTopDayRow>(
     `
     WITH month_base AS (
-      SELECT CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time')) AS month_start
+      SELECT CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE()))) AS month_start
     ),
     location_days AS (
       SELECT
@@ -279,7 +279,7 @@ export default async function DashboardPage() {
   const topServiceByLocation = await query<LocationTopRow>(
     `
     WITH month_base AS (
-      SELECT CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time')) AS month_start
+      SELECT CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE()))) AS month_start
     ),
     location_service AS (
       SELECT
@@ -312,7 +312,7 @@ export default async function DashboardPage() {
   const topProductByLocation = await query<LocationTopRow>(
     `
     WITH month_base AS (
-      SELECT CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time')) AS month_start
+      SELECT CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE()))) AS month_start
     ),
     location_product AS (
       SELECT
@@ -347,12 +347,12 @@ export default async function DashboardPage() {
     SELECT
       (SELECT COUNT(*)
        FROM Membership.tblMembers
-       WHERE CAST(dtMember_JoinedDate AS date) = CAST(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time' AS date)
+       WHERE CAST(dtMember_JoinedDate AS date) = CAST(DATEADD(hour, 8, GETUTCDATE()) AS date)
       ) AS todayCount,
       (SELECT COUNT(*)
        FROM Membership.tblMembers
-       WHERE dtMember_JoinedDate >= CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'))
-         AND dtMember_JoinedDate < DATEADD(month, 1, CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time')))
+       WHERE dtMember_JoinedDate >= CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE())))
+         AND dtMember_JoinedDate < DATEADD(month, 1, CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE()))))
       ) AS monthCount
     `
   );
@@ -363,8 +363,8 @@ export default async function DashboardPage() {
       e.cdesc,
       SUM(e.namt) AS total
     FROM Pos.tblSalesEntry e
-    WHERE e.ddate >= CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'))
-      AND e.ddate < DATEADD(month, 1, CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time')))
+    WHERE e.ddate >= CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE())))
+      AND e.ddate < DATEADD(month, 1, CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE()))))
       AND ISNULL(e.cancelled, 0) = 0
       AND ISNULL(e.void, 0) = 0
       AND e.lservice = 1
@@ -379,8 +379,8 @@ export default async function DashboardPage() {
       e.cdesc,
       SUM(e.namt) AS total
     FROM Pos.tblSalesEntry e
-    WHERE e.ddate >= DATEADD(month, -1, CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time')))
-      AND e.ddate < CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'))
+    WHERE e.ddate >= DATEADD(month, -1, CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE()))))
+      AND e.ddate < CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE())))
       AND ISNULL(e.cancelled, 0) = 0
       AND ISNULL(e.void, 0) = 0
       AND e.lservice = 1
@@ -395,8 +395,8 @@ export default async function DashboardPage() {
       e.cdesc,
       SUM(e.namt) AS total
     FROM Pos.tblSalesEntry e
-    WHERE e.ddate >= CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'))
-      AND e.ddate < DATEADD(month, 1, CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time')))
+    WHERE e.ddate >= CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE())))
+      AND e.ddate < DATEADD(month, 1, CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE()))))
       AND ISNULL(e.cancelled, 0) = 0
       AND ISNULL(e.void, 0) = 0
       AND (e.lservice = 0 OR e.lservice IS NULL)
@@ -411,8 +411,8 @@ export default async function DashboardPage() {
       e.cdesc,
       SUM(e.namt) AS total
     FROM Pos.tblSalesEntry e
-    WHERE e.ddate >= DATEADD(month, -1, CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time')))
-      AND e.ddate < CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'))
+    WHERE e.ddate >= DATEADD(month, -1, CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE()))))
+      AND e.ddate < CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE())))
       AND ISNULL(e.cancelled, 0) = 0
       AND ISNULL(e.void, 0) = 0
       AND (e.lservice = 0 OR e.lservice IS NULL)
@@ -424,7 +424,7 @@ export default async function DashboardPage() {
   const monthlySales = await query<MonthRow>(
     `
     WITH month_base AS (
-      SELECT CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time')) AS month_start
+      SELECT CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE()))) AS month_start
     )
     SELECT
       YEAR(m.ddate) AS year,
@@ -442,7 +442,7 @@ export default async function DashboardPage() {
   const monthlySignups = await query<SignupMonthRow>(
     `
     WITH month_base AS (
-      SELECT CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time')) AS month_start
+      SELECT CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE()))) AS month_start
     )
     SELECT
       YEAR(m.dtMember_JoinedDate) AS year,
@@ -460,7 +460,7 @@ export default async function DashboardPage() {
   const monthlyPackageComparison = await query<PackageMonthRow>(
     `
     WITH month_base AS (
-      SELECT CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time')) AS month_start
+      SELECT CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE()))) AS month_start
     )
     SELECT
       YEAR(e.ddate) AS year,
@@ -482,7 +482,7 @@ export default async function DashboardPage() {
   const monthlyPackageNormalComparison = await query<PackageNormalMonthRow>(
     `
     WITH month_base AS (
-      SELECT CONVERT(date, DATEADD(day, 1 - DAY(GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time'), GETUTCDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Singapore Standard Time')) AS month_start
+      SELECT CONVERT(date, DATEADD(day, 1 - DAY(DATEADD(hour, 8, GETUTCDATE())), DATEADD(hour, 8, GETUTCDATE()))) AS month_start
     )
     SELECT
       YEAR(e.ddate) AS year,
